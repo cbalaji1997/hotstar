@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Closure class</title>
+
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <input
+      oninput="debounce(main,3000)"
+      type="text"
+      id="query"
+      placeholder="Search movie"
+    />
+    <div id="header"></div>
+  </body>
+</html>
+
+<script>
+  let timerId;
+
+  let header = document.getElementById("header");
+
+  let container = document.createElement("div");
+  container.setAttribute("id", "movies");
+
+  const searchMovies = async () => {
+    try {
+      let input = document.querySelector("#query").value;
+
+      let res = await fetch(
+        `https://www.omdbapi.com/?apikey=f4a8223f&s=${input}`
+      );
+
+      let data = await res.json();
+
+      let array_of_objects = data.Search;
+      return array_of_objects;
+    } catch (err) {
+      console.log("err :", err);
+    }
+  };
+
+  const appendMovies = (data) => {
+    container.innerHTML = null;
+
+    if (data === undefined) {
+      return false;
+    }
+
+    data.forEach((el) => {
+      let p = document.createElement("p");
+      p.innerText = el.Title;
+
+      let poster = document.createElement("img");
+      poster.src = el.Poster;
+      let yer = document.createElement("p");
+      yer.innerText = el.Year;
+      let imdb = document.createElement("p");
+      imdb.innerText = el.imdbID;
+
+      container.append(p, poster, yer, imdb);
+
+      header.append(container);
+    });
+  };
+
+  const main = async () => {
+    let deta = await searchMovies();
+    if (deta === undefined) {
+      return false;
+    }
+    console.log("deta", deta);
+
+    appendMovies(deta);
+  };
+
+  const debounce = (func, delay) => {
+    if (timerId) {
+      clearTimeout(timerId);
+    }
+
+    timerId = setTimeout(() => {
+      func();
+    }, delay);
+  };
+</script>
